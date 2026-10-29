@@ -1,0 +1,42 @@
+---
+import Wordmark from '../assets/brand/wordmark.svg';
+import type { SectionId, SiteContent } from '../content';
+
+interface Props {
+  t: SiteContent;
+  /** Sections rendered on the page, in order. */
+  sections: { id: SectionId; title: string }[];
+}
+
+const { t, sections } = Astro.props;
+---
+
+{
+  /*
+   * Phones: the wordmark row, then every section link in a row of its own (48 px tap targets,
+   * wrapping in whole cells if needed). From md up: one 3-cell row, links on the right.
+   */
+}
+<header class="kratka">
+  <div class="container-page flex flex-wrap items-center justify-between md:h-cells-3 md:flex-nowrap md:gap-x-cell">
+    <a href="/" aria-label={t.homeLink} class="flex h-cells-3 items-center">
+      {/* One cell (24 px) = 2 px per logo grid unit, so every edge lands on a whole pixel. */}
+      <Wordmark class="block h-cell w-auto" aria-hidden="true" />
+    </a>
+    {
+      sections.length > 0 && (
+        <nav aria-label={t.navLabel} class="w-full md:w-auto">
+          <ul class="flex flex-wrap gap-x-4 text-sm md:flex-nowrap md:gap-x-5">
+            {sections.map((section) => (
+              <li>
+                <a href={`#${section.id}`} class="inline-flex h-cells-2 items-center underline-offset-4 hover:underline">
+                  {section.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+  </div>
+</header>

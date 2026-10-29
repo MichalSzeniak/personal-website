@@ -1,0 +1,43 @@
+---
+import { site } from '../content';
+import { visibleProjects } from '../lib/projects';
+import type { SectionProps } from '../lib/sections';
+import Section from './Section.astro';
+
+type Props = SectionProps;
+
+const { id, t } = Astro.props;
+const projects = visibleProjects(site.projects).map((project) => ({ ...project, ...t.projects.items[project.id] }));
+---
+
+<Section id={id} title={t.sections[id]}>
+  {
+    /*
+     * Cards generated from site.projects, stacked at the same 20-cell measure as the other
+     * sections. A 2 px rule on top marks each card without taking up layout space.
+     */
+  }
+  <ul role="list" class="grid max-w-[calc(var(--cell)*20)] gap-y-cells-2">
+    {
+      projects.map((project) => (
+        <li class="pt-cell shadow-[inset_0_2px_0_var(--ink)]">
+          <h3 class="on-line-display font-display text-[1.375rem] leading-(--cell) font-semibold">{project.name}</h3>
+          <p class="on-line-base mt-cell text-base leading-(--cell) text-pretty">{project.description}</p>
+          <p class="on-line-base text-base leading-(--cell) text-graphite">
+            <span class="sr-only">{t.projects.stackLabel}: </span>
+            {project.stack.join(', ')}
+          </p>
+          <p class="on-line-base mt-cell text-base leading-(--cell)">
+            <a
+              href={project.href}
+              aria-label={t.projects.linkLabel(project.name)}
+              class="text-accent underline decoration-1 underline-offset-4 hover:decoration-2"
+            >
+              {t.projects.linkText}
+            </a>
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

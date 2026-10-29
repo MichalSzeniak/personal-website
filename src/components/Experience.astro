@@ -1,0 +1,50 @@
+---
+import { site } from '../content';
+import { resolveJobs } from '../lib/career';
+import type { SectionProps } from '../lib/sections';
+import Section from './Section.astro';
+import SpanBar from './SpanBar.astro';
+
+type Props = SectionProps;
+
+const { id, t, facts } = Astro.props;
+const jobs = resolveJobs(site.jobs, t.experience.jobs, facts.buildDate);
+---
+
+<Section id={id} title={t.sections[id]}>
+  {/* role="list": Safari drops list semantics from lists without markers. */}
+  <ol role="list" class="grid max-w-[calc(var(--cell)*20)] gap-y-cells-3">
+    {
+      jobs.map((job) => (
+        <li>
+          {/*
+           * Phones: company and dates stacked, each shifted onto its own grid line.
+           * From sm: one row; baseline alignment of 22 and 16 px text would grow it, so its height
+           * is pinned to a cell and the dates follow the company's baseline.
+           */}
+          <div class="flex flex-col sm:h-cell sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-cell">
+            <h3 class="on-line-display font-display text-[1.375rem] leading-(--cell) font-semibold">{job.company}</h3>
+            <p class="on-line-display-sm font-display text-base leading-(--cell) font-medium text-graphite sm:on-line-display">
+              <span aria-hidden="true">{t.dates.interval(job.start, job.end)}</span>
+              <span class="sr-only">{t.dates.period(job.start, job.end)}</span>
+            </p>
+          </div>
+          <p class="on-line-base text-base leading-(--cell) text-graphite">{job.role}</p>
+          <div class="mt-cell">
+            <SpanBar
+              first={facts.careerStart}
+              last={facts.buildDate}
+              period={job}
+              context={jobs.filter((other) => other !== job)}
+            />
+          </div>
+          <ul class="on-line-base mt-cell list-[square] pl-cell text-base leading-(--cell) text-pretty marker:text-graphite">
+            {job.points.map((point) => (
+              <li>{point}</li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ol>
+</Section>

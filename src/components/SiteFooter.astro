@@ -1,0 +1,26 @@
+---
+import type { SiteContent } from '../content';
+
+interface Props {
+  t: SiteContent;
+  year: number;
+}
+
+const { t, year } = Astro.props;
+---
+
+{/* The notebook grid returns at the bottom, fading in the way the hero's fades out. */}
+<footer class="site-footer kratka">
+  <div
+    class="on-line-base container-page flex flex-col pt-cells-3 pb-cell text-sm leading-(--cell) text-graphite sm:h-cells-5 sm:flex-row sm:items-end sm:justify-between sm:gap-cell sm:pb-cells-2"
+  >
+    <p>{t.footer.copyright(year)}</p>
+    <p>{t.footer.note}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer::before {
+    mask-image: linear-gradient(to bottom, transparent, #000 calc(var(--cell) * 3));
+  }
+</style>

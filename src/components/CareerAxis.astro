@@ -1,0 +1,80 @@
+---
+import { yearAxis } from '../lib/career';
+
+interface Props {
+  start: Date;
+  end: Date;
+  /** Text alternative for screen readers. */
+  summary: (start: Date) => string;
+}
+
+const { start, end, summary } = Astro.props;
+const axis = yearAxis(start, end);
+// Year labels are ~30 px wide; past 8 years every other one is hidden on phones.
+const thinLabels = axis.ticks.length > 8;
+const pct = (value: number) => `${value}%`;
+---
+
+{
+  /*
+   * A number line with the career as a half-open interval: a filled dot marks the start, a hollow
+   * one the open end (today). Two cells tall: the axis on the first grid line, the year labels'
+   * baseline on the second. Horizontal positions are percentages, so labels keep their real CSS
+   * size at every width. The one-cell padding puts the origin on a grid line and leaves room for
+   * the first year label and for the arrow, which is drawn past the end of the domain.
+   */
+}
+<div class="px-cell">
+  <p class="sr-only">{summary(start)}</p>
+  <svg class="block h-cells-2 w-full overflow-visible" aria-hidden="true">
+    <line class="stroke-ink" x1="0" x2="100%" y1="24" y2="24" stroke-width="1.5" />
+    <svg x="100%" y="24" class="overflow-visible">
+      <path class="stroke-ink" d="M0 0H18M9 -5L18 0L9 5" fill="none" stroke-width="1.5" />
+    </svg>
+    {axis.ticks.map((tick) => <line class="stroke-ink" x1={pct(tick.at)} x2={pct(tick.at)} y1="14" y2="34" stroke-width="1.5" />)}
+
+    <rect class="bar fill-accent" x={pct(axis.from)} y="18" width={pct(axis.width)} height="12" />
+    <circle class="fill-accent" cx={pct(axis.from)} cy="24" r="8" />
+    <circle class="open fill-paper stroke-accent" cx={pct(axis.to)} cy="24" r="6.5" stroke-width="3" />
+
+    {
+      axis.ticks.map((tick, i) => (
+        <text
+          class:list={['fill-graphite text-[13px]', { 'max-sm:hidden': thinLabels && i % 2 === 1 }]}
+          x={pct(tick.at)}
+          y="48"
+          text-anchor="middle"
+        >
+          {tick.year}
+        </text>
+      ))
+    }
+  </svg>
+</div>
+
+<style>
+  /* The one orchestrated motion on the page: the interval is drawn from the start to today. */
+  @media (prefers-reduced-motion: no-preference) {
+    .bar {
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation: career-axis-draw 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms both;
+    }
+
+    .open {
+      animation: career-axis-open 200ms ease-out 1000ms both;
+    }
+  }
+
+  @keyframes career-axis-draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes career-axis-open {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

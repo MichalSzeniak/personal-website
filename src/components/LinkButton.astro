@@ -1,0 +1,15 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { buttonBase, buttonVariants, type ButtonVariant } from '../lib/button';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'href'> {
+  href: string;
+  variant?: ButtonVariant;
+}
+
+const { variant = 'secondary', class: className, ...attrs } = Astro.props;
+---
+
+<a class:list={[buttonBase, buttonVariants[variant], className]} {...attrs}>
+  <slot />
+</a>

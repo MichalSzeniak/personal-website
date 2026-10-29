@@ -1,0 +1,49 @@
+---
+import About from '../components/About.astro';
+import Contact from '../components/Contact.astro';
+import Experience from '../components/Experience.astro';
+import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import Technologies from '../components/Technologies.astro';
+import { content, defaultLocale, site, type SectionId } from '../content';
+import Base from '../layouts/Base.astro';
+import { buildFacts } from '../lib/career';
+import { visibleProjects } from '../lib/projects';
+import type { SectionProps } from '../lib/sections';
+
+const t = content[defaultLocale];
+
+// Evaluated once per build (in UTC): years of experience and "today" on the axis advance with
+// every deploy, so a scheduled monthly rebuild keeps them current.
+const facts = buildFacts(site.jobs);
+
+// Sections in page order. The header navigation and <main> are both rendered from this list,
+// so a link can never point at a missing section. Projects and Kontakt wait for their data
+// (draft projects, site.email) and appear in production only once it is filled in.
+interface PageSection {
+  id: SectionId;
+  Component: (props: SectionProps) => unknown;
+  hidden?: boolean;
+}
+const sections = (
+  [
+    { id: 'o-mnie', Component: About },
+    { id: 'doswiadczenie', Component: Experience },
+    { id: 'technologie', Component: Technologies },
+    { id: 'projekty', Component: Projects, hidden: visibleProjects(site.projects).length === 0 },
+    { id: 'kontakt', Component: Contact, hidden: !site.email && !import.meta.env.DEV },
+  ] satisfies PageSection[]
+).filter((section: PageSection) => !section.hidden);
+const nav = sections.map(({ id }) => ({ id, title: t.sections[id] }));
+---
+
+<Base t={t} description={t.meta.description(facts.years)}>
+  <SiteHeader t={t} sections={nav} />
+  <main id="main">
+    <Hero t={t} careerStart={facts.careerStart} buildDate={facts.buildDate} years={facts.years} />
+    {sections.map(({ id, Component }) => <Component id={id} t={t} facts={facts} />)}
+  </main>
+  <SiteFooter t={t} year={facts.buildDate.getUTCFullYear()} />
+</Base>

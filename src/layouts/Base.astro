@@ -1,0 +1,73 @@
+---
+import { Font } from 'astro:assets';
+import { site, type SiteContent } from '../content';
+import '../styles/global.css';
+
+interface Props {
+  t: SiteContent;
+  description: string;
+  /** Overrides the page title (default: t.meta.title). */
+  title?: string;
+  /** For pages that must not be indexed, such as 404. */
+  noindex?: boolean;
+}
+
+const { t, description, title = t.meta.title, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${canonical.href}#person`,
+  name: site.author,
+  jobTitle: t.hero.role,
+  url: canonical.href,
+  sameAs: Object.values(site.links),
+};
+---
+
+<!doctype html>
+<html lang={t.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.author} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f1eee6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#161613" media="(prefers-color-scheme: dark)" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={t.ogLocale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <Font cssVariable="--font-jost" preload />
+    <Font cssVariable="--font-atkinson" preload />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(person)} />
+  </head>
+  <body class="min-h-dvh antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-10 focus:bg-ink focus:px-4 focus:py-3 focus:text-paper"
+    >
+      {t.skipLink}
+    </a>
+    <slot />
+  </body>
+</html>

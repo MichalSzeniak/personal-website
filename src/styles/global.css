@@ -1,0 +1,180 @@
+/* Only src/ is scanned for class names; the words below appear in <style> blocks, attributes or comments. */
+@import 'tailwindcss' source('../');
+@source not inline('transform ease-out visible hidden grow rounded');
+
+/*
+ * Design tokens. Direction "Kratka": squared notebook paper, graphite ink, ballpoint blue.
+ * Colours are plain custom properties so the dark scheme only swaps values.
+ * scripts/brand.mjs and the theme-color meta tags in Base.astro repeat the paper and ink values.
+ */
+:root {
+  --paper: #f1eee6;
+  --ink: #1b1b18;
+  --graphite: #5e5b53;
+  --grid: #dad5c8;
+  --accent: #2340c4;
+  --on-accent: #ffffff;
+
+  /* One notebook square. Heights and offsets in the header and hero are whole cells (see `*-cells-*`). */
+  --cell: 24px;
+  --gutter: max(16px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  --content-max: 72rem;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #161613;
+    --ink: #edeae2;
+    --graphite: #a8a498;
+    --grid: #2a2824;
+    --accent: #8fa3ff;
+    --on-accent: #161613;
+  }
+}
+
+@media (width >= 40rem) {
+  :root {
+    --gutter: max(24px, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (width >= 64rem) {
+  :root {
+    --gutter: 48px;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-graphite: var(--graphite);
+  --color-grid: var(--grid);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  --font-display: var(--font-jost);
+  --font-sans: var(--font-atkinson);
+
+  --spacing-cell: var(--cell);
+}
+
+@layer base {
+  html {
+    background-color: var(--paper);
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--on-accent);
+  }
+}
+
+/* Sizes in whole notebook cells, e.g. `h-cells-2` = 48 px. */
+@utility h-cells-* {
+  height: calc(var(--cell) * --value(integer));
+}
+@utility min-w-cells-* {
+  min-width: calc(var(--cell) * --value(integer));
+}
+@utility mt-cells-* {
+  margin-top: calc(var(--cell) * --value(integer));
+}
+@utility pt-cells-* {
+  padding-top: calc(var(--cell) * --value(integer));
+}
+@utility pb-cells-* {
+  padding-bottom: calc(var(--cell) * --value(integer));
+}
+@utility py-cells-* {
+  padding-block: calc(var(--cell) * --value(integer));
+}
+@utility gap-y-cells-* {
+  row-gap: calc(var(--cell) * --value(integer));
+}
+
+/*
+ * Section entrance: a short fade and rise tied to scrolling (scroll-driven animation, no JS).
+ * Browsers without view timelines and readers who prefer reduced motion get static content.
+ * The range ends once four cells (padding + title) have entered, so any section that shows
+ * text on load is already fully visible.
+ * Longhands on purpose: the minifier would fold them into an `animation` shorthand with
+ * view(), which browsers reject, silently disabling the animation.
+ */
+@utility reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation-name: section-reveal;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% entry calc(var(--cell) * 4);
+    }
+  }
+}
+
+/*
+ * Text lines are one cell tall; `on-line-*` drops a paragraph so its baselines sit on the grid
+ * lines, like writing in a notebook. The shift depends on font and size (measured in Chrome).
+ */
+@theme {
+  --baseline-display: 4px; /* Jost 22 px */
+  --baseline-display-md: 6px; /* Jost 20 px */
+  --baseline-display-sm: 7px; /* Jost 16 px */
+  --baseline-lg: 6px; /* Atkinson 18 px */
+  --baseline-base: 7px; /* Atkinson 16 px */
+}
+@utility on-line-* {
+  position: relative;
+  top: --value(--baseline-*);
+}
+
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--cell) / 2);
+  }
+}
+
+/* Centred content column; its left edge is the origin of the notebook grid. */
+@utility container-page {
+  width: min(100% - 2 * var(--gutter), var(--content-max));
+  margin-inline: auto;
+}
+
+/*
+ * Squared-paper background for full-bleed bands. The grid origin is aligned with the content
+ * column, so text and buttons that start on a cell boundary sit exactly on a grid line.
+ * Bands stacked on top of each other continue the same grid as long as their heights are whole cells.
+ */
+@utility kratka {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: var(--cell) var(--cell);
+    background-position: max(var(--gutter), (100cqw - var(--content-max)) / 2) 0;
+  }
+}

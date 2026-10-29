@@ -1,0 +1,46 @@
+---
+import { yearAxis, type Period } from '../lib/career';
+
+interface Props {
+  /** Domain of the scale: the career start and the build date, shared by every bar. */
+  first: Date;
+  last: Date;
+  /** The highlighted period; without `end` it is ongoing and drawn with an open end. */
+  period: Period;
+  /** The rest of the career, drawn faintly so gaps and order read at a glance. */
+  context: Period[];
+}
+
+const { first, last, period, context } = Astro.props;
+const span = (p: Period) => yearAxis(first, last, { start: p.start, end: p.until });
+const axis = span(period);
+const pct = (value: number) => `${value}%`;
+const ongoing = !period.end;
+---
+
+{
+  /*
+   * One period on the same year scale as the career axis in the hero: year ticks on a thin
+   * line, the other jobs as faint bars, this one with a closed (filled) start and a closed or
+   * open end. Current work is accent, past work graphite. One cell tall and purely visual:
+   * the dates are given in text next to it.
+   */
+}
+<svg class="block h-cell w-full overflow-visible" aria-hidden="true">
+  <line class="stroke-graphite" x1="0" x2="100%" y1="12" y2="12" stroke-width="1" />
+  {axis.ticks.map((tick) => <line class="stroke-graphite" x1={pct(tick.at)} x2={pct(tick.at)} y1="8" y2="16" stroke-width="1" />)}
+  {
+    context.map(span).map((other) => (
+      <rect class="fill-graphite opacity-25" x={pct(other.from)} y="9" width={pct(other.width)} height="6" />
+    ))
+  }
+  <rect class:list={[ongoing ? 'fill-accent' : 'fill-graphite']} x={pct(axis.from)} y="9" width={pct(axis.width)} height="6" />
+  <circle class:list={[ongoing ? 'fill-accent' : 'fill-graphite']} cx={pct(axis.from)} cy="12" r="5" />
+  {
+    ongoing ? (
+      <circle class="fill-paper stroke-accent" cx={pct(axis.to)} cy="12" r="4" stroke-width="2" />
+    ) : (
+      <circle class="fill-graphite" cx={pct(axis.to)} cy="12" r="5" />
+    )
+  }
+</svg>

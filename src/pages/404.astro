@@ -1,0 +1,39 @@
+---
+import LinkButton from '../components/LinkButton.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { content, defaultLocale } from '../content';
+import Base from '../layouts/Base.astro';
+
+const t = content[defaultLocale];
+---
+
+{/* Emitted as dist/404.html, which Cloudflare Pages, Netlify and GitHub Pages serve with status 404. */}
+<Base t={t} title={`${t.notFound.title}, ${t.meta.title}`} description={t.notFound.text} noindex>
+  <SiteHeader t={t} sections={[]} />
+  <main id="main" class="not-found kratka">
+    <div class="container-page pt-cells-2 pb-cells-4">
+      <h1 class="title font-display font-semibold uppercase">{t.notFound.title}</h1>
+      <p class="on-line-lg mt-cell max-w-[34ch] text-lg leading-(--cell)">{t.notFound.text}</p>
+      <div class="mt-cell">
+        <LinkButton href="/" variant="primary">{t.notFound.homeLink}</LinkButton>
+      </div>
+    </div>
+  </main>
+  <SiteFooter t={t} year={new Date().getUTCFullYear()} />
+</Base>
+
+<style>
+  /* Same type as section titles: capitals exactly one cell tall. */
+  .title {
+    font-size: min(calc(var(--cell) / 0.7), 8vw);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-box: trim-both cap alphabetic;
+  }
+
+  /* The grid fades out at the bottom, as in the hero. */
+  .not-found::before {
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--cell) * 3), transparent);
+  }
+</style>

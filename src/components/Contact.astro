@@ -1,0 +1,29 @@
+---
+import { site } from '../content';
+import type { SectionProps } from '../lib/sections';
+import EmailReveal from './EmailReveal.astro';
+import Section from './Section.astro';
+
+type Props = SectionProps;
+
+const { id, t } = Astro.props;
+---
+
+{/* Only rendered when site.email is set (or by the dev server, which shows a placeholder). */}
+<Section id={id} title={t.sections[id]}>
+  <p class="on-line-lg max-w-[calc(var(--cell)*20)] text-lg leading-(--cell) text-pretty">{t.contact.lead}</p>
+  <div class="mt-cell">
+    {
+      site.email ? (
+        <>
+          <EmailReveal user={site.email.user} domain={site.email.domain} label={t.contact.emailButton} />
+          <noscript>
+            <p class="on-line-base text-base leading-(--cell) text-graphite">{t.contact.noScript}</p>
+          </noscript>
+        </>
+      ) : (
+        <p class="on-line-base text-base leading-(--cell) text-graphite">[DO UZUPEŁNIENIA] site.email w src/content.ts</p>
+      )
+    }
+  </div>
+</Section>

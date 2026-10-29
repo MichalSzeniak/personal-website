@@ -1,0 +1,106 @@
+---
+import type { SiteContent } from '../content';
+import CareerAxis from './CareerAxis.astro';
+import LinkButton from './LinkButton.astro';
+
+interface Props {
+  t: SiteContent;
+  careerStart: Date;
+  buildDate: Date;
+  years: number;
+}
+
+const { t, careerStart, buildDate, years } = Astro.props;
+const nameLines = t.hero.name.split(' ');
+---
+
+<section class="hero kratka" aria-labelledby="hero-title">
+  <div class="container-page pt-cells-2 pb-cells-3">
+    <h1 id="hero-title" class="name font-display font-bold uppercase">
+      {nameLines.map((line, i) => <span class="block">{i > 0 && ' '}{line}</span>)}
+    </h1>
+
+    <div class="mt-cell grid gap-cell lg:mt-cells-2 lg:grid-cols-[calc(var(--cell)*16)_calc(var(--cell)*20)]">
+      <p class="on-line-display font-display text-[1.375rem] leading-(--cell) font-medium">{t.hero.role}</p>
+      <div>
+        <p class="on-line-lg max-w-[34ch] text-lg leading-(--cell)">{t.hero.lead(years)}</p>
+        <div class="mt-cell flex flex-wrap gap-cell">
+          {
+            t.hero.links.map((link, i) => (
+              <LinkButton href={link.href} rel="me" variant={i === 0 ? 'primary' : 'secondary'}>
+                {link.label}
+              </LinkButton>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-cells-2">
+      <CareerAxis start={careerStart} end={buildDate} summary={t.hero.careerSummary} />
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+   * Capitals exactly N notebook squares tall: text-box trims each line to cap height and
+   * baseline, and the font size is derived from Jost's cap height (0.7 em). Below ~340 px the
+   * name is limited by the width instead, so it never overflows.
+   */
+  .name {
+    --cap-height: 0.7;
+    --cap-cells: 2;
+    font-size: min(calc(var(--cell) * var(--cap-cells) / var(--cap-height)), 20cqi);
+    line-height: 1;
+    /* M and S have a ~0.03 em left side bearing; this puts their stems on the grid line. */
+    margin-inline-start: -0.03em;
+    overflow-wrap: anywhere;
+  }
+
+  /* min-height keeps whole cells even when the width limit shrinks the capitals. */
+  .name > span {
+    min-height: calc(var(--cell) * var(--cap-cells));
+    text-box: trim-both cap alphabetic;
+  }
+
+  .name > span + span {
+    margin-top: var(--cell);
+  }
+
+  /* Without text-box: for Jost, a line box of cap height holds the capitals within 1 px. */
+  @supports not (text-box: trim-both cap alphabetic) {
+    .name > span {
+      line-height: var(--cap-height);
+    }
+  }
+
+  @media (width >= 40rem) {
+    .name {
+      --cap-cells: 3;
+    }
+  }
+
+  @media (width >= 48rem) {
+    .name {
+      --cap-cells: 4;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .name {
+      --cap-cells: 5;
+    }
+  }
+
+  @media (width >= 80rem) {
+    .name {
+      --cap-cells: 6;
+    }
+  }
+
+  /* The grid fades out at the bottom instead of ending on a hard edge. */
+  .hero::before {
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--cell) * 3), transparent);
+  }
+</style>

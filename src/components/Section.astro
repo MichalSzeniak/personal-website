@@ -1,0 +1,50 @@
+---
+import type { SectionId } from '../content';
+
+interface Props {
+  id: SectionId;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+{
+  /*
+   * The one module every section is built from: the title takes the same 16-cell column as the
+   * role in the hero, the content the column of the lead. All spacing is whole cells. The reveal
+   * rise happens inside the section's own padding, which `overflow: clip` keeps from changing
+   * the page's scroll height.
+   */
+}
+<section id={id} aria-labelledby={`${id}-title`} class="overflow-clip">
+  <div
+    class="reveal container-page grid grid-cols-[minmax(0,1fr)] gap-cell py-cells-2 sm:py-cells-3 lg:grid-cols-[calc(var(--cell)*16)_minmax(0,1fr)]"
+  >
+    <h2 id={`${id}-title`} class="title self-start font-display font-semibold uppercase">{title}</h2>
+    <div class="min-w-0">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+   * Capitals exactly one cell tall, like the name in the hero (Jost cap height = 0.7 em).
+   * On the narrowest phones the width wins, and the box still keeps one cell of height.
+   */
+  .title {
+    font-size: min(calc(var(--cell) / 0.7), 10vw);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    min-height: var(--cell);
+    overflow-wrap: anywhere;
+    text-box: trim-both cap alphabetic;
+  }
+
+  @supports not (text-box: trim-both cap alphabetic) {
+    .title {
+      line-height: 0.7;
+    }
+  }
+</style>

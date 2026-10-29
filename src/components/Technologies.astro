@@ -1,0 +1,32 @@
+---
+import type { SectionProps } from '../lib/sections';
+import Section from './Section.astro';
+
+type Props = SectionProps;
+
+const { id, t } = Astro.props;
+---
+
+<Section id={id} title={t.sections[id]}>
+  {/* Plain grouped lists, one item per grid line; the core stack is set in the display face. */}
+  <div class="grid max-w-[calc(var(--cell)*20)] gap-cell sm:grid-cols-3">
+    {
+      t.technologies.groups.map((group, i) => (
+        <div>
+          <h3 class="on-line-base text-base leading-(--cell) text-graphite">{group.name}</h3>
+          <ul
+            role="list"
+            class:list={[
+              'leading-(--cell)',
+              i === 0 ? 'on-line-display-md font-display text-[1.25rem] font-medium' : 'on-line-base text-base',
+            ]}
+          >
+            {group.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</Section>
