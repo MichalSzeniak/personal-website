@@ -25,7 +25,7 @@ const jobs = resolveJobs(site.jobs, t.experience.jobs, facts.buildDate);
           <div class="flex flex-col sm:h-cell sm:flex-row sm:items-baseline sm:justify-between sm:gap-x-cell">
             <h3 class="on-line-display font-display text-[1.375rem] leading-(--cell) font-semibold">{job.company}</h3>
             <p class="on-line-display-sm font-display text-base leading-(--cell) font-medium text-graphite sm:on-line-display">
-              <span aria-hidden="true">{t.dates.interval(job.start, job.end)}</span>
+              <span aria-hidden="true">{t.dates.range(job.start, job.end)}</span>
               <span class="sr-only">{t.dates.period(job.start, job.end)}</span>
             </p>
           </div>

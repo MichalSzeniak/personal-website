@@ -48,12 +48,11 @@ export const site = {
     { id: 'projekt-2', name: '[DO UZUPEŁNIENIA]', href: 'https://github.com/michalszeniak', stack: ['[DO UZUPEŁNIENIA]'], draft: true },
   ],
   /**
-   * [DO UZUPEŁNIENIA] E-mail alias on the domain (e.g. Cloudflare Email Routing forwarding to a
-   * private inbox), e.g. { user: 'kontakt', domain: 'emes.dev' }. It never appears in the HTML:
-   * the address is assembled in the browser after a click. While it is null, the Kontakt section
-   * is shown only by the dev server and the page ships no JavaScript at all.
+   * E-mail alias on the domain (Cloudflare Email Routing forwarding to a private inbox). It never
+   * appears in the HTML: the address is assembled in the browser after a click. While it is null,
+   * the Kontakt section is shown only by the dev server and the page ships no JavaScript at all.
    */
-  email: null as { user: string; domain: string } | null,
+  email: { user: 'kontakt', domain: 'emes.dev' } as { user: string; domain: string } | null,
 } as const satisfies { jobs: readonly Job[]; projects: readonly Project[] } & Record<string, unknown>;
 
 export interface Project {
@@ -86,8 +85,8 @@ export interface SiteContent {
   /** Section titles, also used as navigation labels. */
   sections: Record<SectionId, string>;
   dates: {
-    /** Interval notation: [start, end] for a closed period, [start, today) for an ongoing one. */
-    interval: (start: Date, end?: Date) => string;
+    /** Visible date range, e.g. "09.2024 – obecnie"; without `end` the period is ongoing. */
+    range: (start: Date, end?: Date) => string;
     /** The same period in words, for screen readers. */
     period: (start: Date, end?: Date) => string;
   };
@@ -168,7 +167,7 @@ const plYears = (n: number) => {
  * Polish typesetting: a one-letter word (a, i, o, u, w, z) or a number must not end a line,
  * so it is bound to the next word with a no-break space.
  */
-const bindShortWords = (text: string) => text.replace(/(?<=^|\s)([aiouwzAIOUWZ]|\d+) /g, '$1 ');
+const bindShortWords = (text: string) => text.replace(/(?<=^|\s)([aiouwzAIOUWZ]|\d+) /g, '$1\u00a0');
 
 const pl: SiteContent = {
   lang: 'pl',
@@ -192,8 +191,8 @@ const pl: SiteContent = {
     kontakt: 'Kontakt',
   },
   dates: {
-    interval: (start, end) =>
-      end ? `[${plMonthYear.format(start)}, ${plMonthYear.format(end)}]` : `[${plMonthYear.format(start)}, dziś)`,
+    // The no-break space keeps the dash from starting a line.
+    range: (start, end) => `${plMonthYear.format(start)}\u00a0– ${end ? plMonthYear.format(end) : 'obecnie'}`,
     period: (start, end) => `od ${plMonthGenitive(start)} do ${end ? plMonthGenitive(end) : 'dziś'}`,
   },
   hero: {
