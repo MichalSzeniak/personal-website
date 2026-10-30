@@ -34,7 +34,7 @@ export const site = {
    */
   jobs: [
     { id: 'model-group', company: 'Model Group', start: '2024-09' },
-    { id: 'ultimate-systems', company: 'Ultimate Systems', start: '2021-06', end: '2024-06' },
+    { id: 'ultimate-systems', company: 'Ultimate Systems', start: '2021-06', end: '2024-07' },
   ],
   /**
    * Projects shown as cards, in this order. `draft: true` entries are templates: they render
@@ -48,12 +48,11 @@ export const site = {
     { id: 'projekt-2', name: '[DO UZUPEŁNIENIA]', href: 'https://github.com/michalszeniak', stack: ['[DO UZUPEŁNIENIA]'], draft: true },
   ],
   /**
-   * [DO UZUPEŁNIENIA] E-mail alias on the domain (e.g. Cloudflare Email Routing forwarding to a
-   * private inbox), e.g. { user: 'kontakt', domain: 'emes.dev' }. It never appears in the HTML:
-   * the address is assembled in the browser after a click. While it is null, the Kontakt section
-   * is shown only by the dev server and the page ships no JavaScript at all.
+   * E-mail alias on the domain (Cloudflare Email Routing forwarding to a private inbox). It never
+   * appears in the HTML: the address is assembled in the browser by a script. While it is null,
+   * the Kontakt section is shown only by the dev server and the page ships no JavaScript at all.
    */
-  email: null as { user: string; domain: string } | null,
+  email: { user: 'kontakt', domain: 'emes.dev' } as { user: string; domain: string } | null,
 } as const satisfies { jobs: readonly Job[]; projects: readonly Project[] } & Record<string, unknown>;
 
 export interface Project {
@@ -86,7 +85,7 @@ export interface SiteContent {
   /** Section titles, also used as navigation labels. */
   sections: Record<SectionId, string>;
   dates: {
-    /** Interval notation: [start, end] for a closed period, [start, today) for an ongoing one. */
+    /** Short period, e.g. "06.2021 – 06.2024" or "09.2024 – obecnie". */
     interval: (start: Date, end?: Date) => string;
     /** The same period in words, for screen readers. */
     period: (start: Date, end?: Date) => string;
@@ -97,6 +96,8 @@ export interface SiteContent {
     lead: (years: number) => string;
     /** The first link is the primary button. */
     links: ExternalLink[];
+    /** Label of the mailto button after the links, shown once site.email is set. */
+    emailLink: string;
     /** Text alternative of the number line for screen readers. */
     careerSummary: (start: Date) => string;
   };
@@ -122,8 +123,6 @@ export interface SiteContent {
   };
   contact: {
     lead: string;
-    /** Shown instead of the address until it is clicked. */
-    emailButton: string;
     /** Shown when JavaScript is off, since the address is assembled by a script. */
     noScript: string;
   };
@@ -192,8 +191,7 @@ const pl: SiteContent = {
     kontakt: 'Kontakt',
   },
   dates: {
-    interval: (start, end) =>
-      end ? `[${plMonthYear.format(start)}, ${plMonthYear.format(end)}]` : `[${plMonthYear.format(start)}, dziś)`,
+    interval: (start, end) => `${plMonthYear.format(start)} – ${end ? plMonthYear.format(end) : 'obecnie'}`,
     period: (start, end) => `od ${plMonthGenitive(start)} do ${end ? plMonthGenitive(end) : 'dziś'}`,
   },
   hero: {
@@ -204,6 +202,7 @@ const pl: SiteContent = {
       { label: 'LinkedIn', href: site.links.linkedin },
       { label: 'GitHub', href: site.links.github },
     ],
+    emailLink: 'E-mail',
     careerSummary: (start) => `Pracuję zawodowo od ${plMonthGenitive(start)} roku.`,
   },
   about: {
@@ -262,8 +261,7 @@ const pl: SiteContent = {
     linkText: 'Kod na GitHubie',
   },
   contact: {
-    lead: bindShortWords('Najprościej napisać e-mail. Adres pokazuje się po kliknięciu, żeby nie zbierały go boty.'),
-    emailButton: 'Pokaż adres e-mail',
+    lead: 'Najprościej napisać e-mail.',
     noScript: 'Adres e-mail pokazuje się po włączeniu JavaScriptu.',
   },
   footer: {

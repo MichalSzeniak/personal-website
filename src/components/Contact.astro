@@ -1,7 +1,7 @@
 ---
 import { site } from '../content';
 import type { SectionProps } from '../lib/sections';
-import EmailReveal from './EmailReveal.astro';
+import EmailAddress from './EmailAddress.astro';
 import Section from './Section.astro';
 
 type Props = SectionProps;
@@ -15,12 +15,7 @@ const { id, t } = Astro.props;
   <div class="mt-cell">
     {
       site.email ? (
-        <>
-          <EmailReveal user={site.email.user} domain={site.email.domain} label={t.contact.emailButton} />
-          <noscript>
-            <p class="on-line-base text-base leading-(--cell) text-graphite">{t.contact.noScript}</p>
-          </noscript>
-        </>
+        <EmailAddress user={site.email.user} domain={site.email.domain} noScript={t.contact.noScript} />
       ) : (
         <p class="on-line-base text-base leading-(--cell) text-graphite">[DO UZUPEŁNIENIA] site.email w src/content.ts</p>
       )

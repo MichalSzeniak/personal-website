@@ -1,6 +1,7 @@
 ---
-import type { SiteContent } from '../content';
+import { site, type SiteContent } from '../content';
 import CareerAxis from './CareerAxis.astro';
+import EmailLink from './EmailLink.astro';
 import LinkButton from './LinkButton.astro';
 
 interface Props {
@@ -32,6 +33,7 @@ const nameLines = t.hero.name.split(' ');
               </LinkButton>
             ))
           }
+          {site.email && <EmailLink user={site.email.user} domain={site.email.domain} label={t.hero.emailLink} />}
         </div>
       </div>
     </div>

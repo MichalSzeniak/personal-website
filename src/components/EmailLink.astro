@@ -1,0 +1,30 @@
+---
+import { encodeEmailPart } from '../lib/email';
+import LinkButton from './LinkButton.astro';
+
+interface Props {
+  user: string;
+  domain: string;
+  label: string;
+}
+
+const { user, domain, label } = Astro.props;
+---
+
+{/* Without JavaScript the link leads to the Kontakt section; the script turns it into mailto. */}
+<email-link data-u={encodeEmailPart(user)} data-d={encodeEmailPart(domain)}>
+  <LinkButton href="#kontakt">{label}</LinkButton>
+</email-link>
+
+<script>
+  import { decodeEmail } from '../lib/email';
+
+  class EmailLink extends HTMLElement {
+    connectedCallback() {
+      const link = this.querySelector('a');
+      if (link) link.href = `mailto:${decodeEmail(this.dataset)}`;
+    }
+  }
+
+  customElements.define('email-link', EmailLink);
+</script>

@@ -1,6 +1,6 @@
 # michalszeniak.emes.dev
 
-Jednostronicowa wizytówka. Astro 7 + TypeScript + Tailwind CSS 4, statyczny build, bez cookies i zewnętrznych zapytań. Domyślnie bez JavaScriptu po stronie klienta; jedyny skrypt składa adres e-mail po kliknięciu i trafia na stronę dopiero wtedy, gdy adres jest ustawiony.
+Jednostronicowa wizytówka. Astro 7 + TypeScript + Tailwind CSS 4, statyczny build, bez cookies i zewnętrznych zapytań. Domyślnie bez JavaScriptu po stronie klienta; jedyny skrypt składa adres e-mail (w hero i w sekcji „Kontakt”) i trafia na stronę dopiero wtedy, gdy adres jest ustawiony.
 
 ## Polecenia
 
@@ -18,7 +18,7 @@ Wymagany Node ≥ 22.23.4 (wersja dla hostingu jest w `.node-version`).
 W `src/content.ts` szukaj `[DO UZUPEŁNIENIA]`:
 
 - `site.projects` i `projects.items`: 2–3 projekty (nazwa, link, stack, jedno zdanie). Wpisy z `draft: true` widać tylko w `npm run dev`; dopóki nie ma żadnego gotowego projektu, sekcja „Projekty” nie trafia do builda.
-- `site.email`: opcjonalny alias na domenie. Adres nie pojawia się w HTML; po kliknięciu „Pokaż adres e-mail” składa go skrypt.
+- `site.email`: opcjonalny alias na domenie. Adres nie pojawia się w HTML; składa go skrypt po załadowaniu strony. Ustawiony: kontakt@emes.dev (wymaga aliasu w Cloudflare Email Routing).
 
 ## Gdzie co jest
 

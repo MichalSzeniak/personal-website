@@ -1,0 +1,36 @@
+---
+import { encodeEmailPart } from '../lib/email';
+
+interface Props {
+  user: string;
+  domain: string;
+  /** Shown when JavaScript is off, since the address is assembled by the script. */
+  noScript: string;
+}
+
+const { user, domain, noScript } = Astro.props;
+---
+
+{/* Two cells tall from the start, so nothing moves when the script puts the link in. */}
+<email-address class="flex min-h-cells-2 items-center" data-u={encodeEmailPart(user)} data-d={encodeEmailPart(domain)}>
+  <noscript><p class="on-line-base text-base leading-(--cell) text-graphite">{noScript}</p></noscript>
+</email-address>
+
+<script>
+  import { decodeEmail } from '../lib/email';
+
+  /** Fills the element with a mailto link to the assembled address. */
+  class EmailAddress extends HTMLElement {
+    connectedCallback() {
+      const address = decodeEmail(this.dataset);
+      const link = document.createElement('a');
+      link.href = `mailto:${address}`;
+      link.textContent = address;
+      link.className =
+        'font-display text-[1.375rem] font-semibold text-accent underline decoration-2 underline-offset-[5px] [overflow-wrap:anywhere] hover:decoration-4';
+      this.replaceChildren(link);
+    }
+  }
+
+  customElements.define('email-address', EmailAddress);
+</script>

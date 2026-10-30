@@ -87,6 +87,9 @@
 @utility h-cells-* {
   height: calc(var(--cell) * --value(integer));
 }
+@utility min-h-cells-* {
+  min-height: calc(var(--cell) * --value(integer));
+}
 @utility min-w-cells-* {
   min-width: calc(var(--cell) * --value(integer));
 }
